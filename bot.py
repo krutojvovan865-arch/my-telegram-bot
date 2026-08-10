@@ -1,8 +1,18 @@
 import asyncio
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 TOKEN = "8503266097:AAHYLwclZLsu8pudOw_gKQDmVyYOX_5ApPo"
+
+# Создаём клавиатуру с кнопками
+kb = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text="Привет 👋")],
+        [KeyboardButton(text="Пока 👋")]
+    ],
+    resize_keyboard=True  # Это сделает кнопки маленькими и удобными
+)
 
 async def main():
     bot = Bot(token=TOKEN)
@@ -10,8 +20,18 @@ async def main():
 
     @dp.message(Command("start"))
     async def start_command(message: types.Message):
-        await message.answer("Привет! Я бот, работающий на Render!")
+        # Отправляем приветствие и показываем клавиатуру
+        await message.answer("Выбери действие:", reply_markup=kb)
 
+    @dp.message(lambda message: message.text == "Привет 👋")
+    async def say_hello(message: types.Message):
+        await message.answer("И тебе привет! Как дела?")
+
+    @dp.message(lambda message: message.text == "Пока 👋")
+    async def say_bye(message: types.Message):
+        await message.answer("Пока! Возвращайся ещё!")
+
+    # Эхо-ответ на всё остальное
     @dp.message()
     async def echo_message(message: types.Message):
         await message.answer(f"Ты написал: {message.text}")
@@ -21,4 +41,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-    print("✅ Бот слушает сообщения...")
