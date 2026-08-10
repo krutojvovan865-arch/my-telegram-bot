@@ -11,7 +11,7 @@ kb = ReplyKeyboardMarkup(
         [KeyboardButton(text="Привет 👋")],
         [KeyboardButton(text="Пока 👋")]
     ],
-    resize_keyboard=True  # Это сделает кнопки маленькими и удобными
+    resize_keyboard=True
 )
 
 async def main():
@@ -20,8 +20,12 @@ async def main():
 
     @dp.message(Command("start"))
     async def start_command(message: types.Message):
-        # Отправляем приветствие и показываем клавиатуру
         await message.answer("Выбери действие:", reply_markup=kb)
+
+    # Новая команда! Напиши боту /boom
+    @dp.message(Command("boom"))
+    async def boom_command(message: types.Message):
+        await message.answer("Бурмалда! 🎉")
 
     @dp.message(lambda message: message.text == "Привет 👋")
     async def say_hello(message: types.Message):
@@ -31,7 +35,6 @@ async def main():
     async def say_bye(message: types.Message):
         await message.answer("Пока! Возвращайся ещё!")
 
-    # Эхо-ответ на всё остальное
     @dp.message()
     async def echo_message(message: types.Message):
         await message.answer(f"Ты написал: {message.text}")
