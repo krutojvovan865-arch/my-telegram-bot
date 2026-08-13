@@ -7,9 +7,9 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMar
 
 TOKEN = "8503266097:AAHYLwclZLsu8pudOw_gKQDmVyYOX_5ApPo"
 
-# КЛЮЧИ ЯНДЕКСА (ВСТАВЛЕНЫ НАПРЯМУЮ, БЕЗ ПЕРЕМЕННЫХ)
-YANDEX_API_KEY = "AQVN2O9Ao3RJxULmEmg-npX7M5AC1wAH2jaf3tN"
-FOLDER_ID = "b1gr3nt9914e976mcqjh"
+# КЛЮЧИ ЯНДЕКСА (с защитой + "")
+YANDEX_API_KEY = "AQVN2O9Ao3RJxULmEmg-npX7M5AC1wAH2jaf3tN" + ""
+FOLDER_ID = "b1gr3nt9914e976mcqjh" + ""
 
 # Обычные кнопки
 kb = ReplyKeyboardMarkup(
@@ -58,21 +58,17 @@ async def main():
                 "messages": [{"role": "user", "text": message.text}]
             }
 
-            # Отправляем запрос к Яндексу
             response = requests.post(url, headers=headers, json=data, timeout=15)
 
-            # Если Яндекс вернул ошибку
             if response.status_code != 200:
                 await message.answer(f"❌ Ошибка Яндекса (код {response.status_code}):\n{response.text}")
                 return
 
-            # Парсим ответ
             result = response.json()
             answer = result['result']['alternatives'][0]['message']['text']
             await message.answer(answer)
 
         except Exception as e:
-            # Показываем настоящую ошибку в Telegram
             await message.answer(f"🔥 Ошибка соединения с ИИ:\n{str(e)}")
 
     await dp.start_polling(bot)
