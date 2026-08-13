@@ -1,16 +1,15 @@
 import asyncio
 import random
-import os
 import requests
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 
 TOKEN = "8503266097:AAHYLwclZLsu8pudOw_gKQDmVyYOX_5ApPo"
 
-# Ключи берутся из настроек Render (Environment Variables)
-YANDEX_API_KEY = os.getenv("YANDEX_API_KEY")
-FOLDER_ID = os.getenv("FOLDER_ID")
+# КЛЮЧИ ЯНДЕКСА (ВСТАВЛЕНЫ НАПРЯМУЮ, БЕЗ ПЕРЕМЕННЫХ)
+YANDEX_API_KEY = "AQVN2O9Ao3RJxULmEmg-npX7M5AC1wAH2jaf3tN"
+FOLDER_ID = "b1gr3nt9914e976mcqjh"
 
 # Обычные кнопки
 kb = ReplyKeyboardMarkup(
