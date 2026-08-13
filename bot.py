@@ -1,6 +1,6 @@
 import asyncio
 import random
-import os  # <--- ДОБАВИЛИ ЭТО
+import os
 import requests
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
@@ -8,11 +8,11 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 TOKEN = "8503266097:AAHYLwclZLsu8pudOw_gKQDmVyYOX_5ApPo"
 
-# Ключи теперь берутся из настроек Render, а не лежат в коде!
+# Ключи берутся из настроек Render (Environment Variables)
 YANDEX_API_KEY = os.getenv("YANDEX_API_KEY")
 FOLDER_ID = os.getenv("FOLDER_ID")
 
-# Кнопки
+# Обычные кнопки
 kb = ReplyKeyboardMarkup(
     keyboard=[
         [KeyboardButton(text="Привет 👋")],
@@ -27,22 +27,23 @@ async def main():
 
     @dp.message(Command("start"))
     async def start_command(message: types.Message):
-        await message.answer("Я ИИ-бот! Напиши мне что-нибудь.", reply_markup=kb)
+        await message.answer("Привет! Я ИИ-бот. Напиши мне что-нибудь.", reply_markup=kb)
 
     @dp.message(Command("boom"))
     async def boom_command(message: types.Message):
         await message.answer("Бурмалда! 🎉")
 
+    # Обычные кнопки
     @dp.message(lambda message: message.text == "Привет 👋")
     async def say_hello(message: types.Message):
-        await message.answer("И тебе привет!")
+        await message.answer("И тебе привет! Как дела?")
 
     @dp.message(lambda message: message.text == "Пока 👋")
     async def say_bye(message: types.Message):
-        await message.answer("Пока!")
+        await message.answer("Пока! Возвращайся ещё!")
 
     # ==========================================
-    # ИИ (YANDEXGPT)
+    # ⭐ ИСКУССТВЕННЫЙ ИНТЕЛЛЕКТ (YANDEXGPT) ⭐
     # ==========================================
     @dp.message()
     async def ai_response(message: types.Message):
@@ -57,11 +58,23 @@ async def main():
                 "completionOptions": {"stream": False, "temperature": 0.6},
                 "messages": [{"role": "user", "text": message.text}]
             }
-            response = requests.post(url, headers=headers, json=data)
-            answer = response.json()['result']['alternatives'][0]['message']['text']
+
+            # Отправляем запрос к Яндексу
+            response = requests.post(url, headers=headers, json=data, timeout=15)
+
+            # Если Яндекс вернул ошибку
+            if response.status_code != 200:
+                await message.answer(f"❌ Ошибка Яндекса (код {response.status_code}):\n{response.text}")
+                return
+
+            # Парсим ответ
+            result = response.json()
+            answer = result['result']['alternatives'][0]['message']['text']
             await message.answer(answer)
+
         except Exception as e:
-            await message.answer("Ошибка связи с ИИ.")
+            # Показываем настоящую ошибку в Telegram
+            await message.answer(f"🔥 Ошибка соединения с ИИ:\n{str(e)}")
 
     await dp.start_polling(bot)
 
