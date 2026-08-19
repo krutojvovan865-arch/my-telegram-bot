@@ -23,7 +23,7 @@ async def main():
                 "Content-Type": "application/json"
             }
             data = {
-                "model": "cognitivecomputations/dolphin-mixtral-8x7b",
+                "model": "microsoft/phi-3-mini-128k-instruct",
                 "messages": [{"role": "user", "content": message.text}],
                 "stream": False
             }
