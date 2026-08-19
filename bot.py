@@ -24,7 +24,8 @@ async def main():
             }
             data = {
                 "model": "google/gemini-1.5-flash",
-                "messages": [{"role": "user", "content": message.text}]
+                "messages": [{"role": "user", "content": message.text}],
+                "stream": False
             }
             response = requests.post(url, headers=headers, json=data, timeout=15)
             if response.status_code != 200:
