@@ -12,7 +12,7 @@ async def main():
 
     @dp.message(Command("start"))
     async def start_command(message: types.Message):
-        await message.answer("Привет! Я ИИ-бот на OpenRouter!")
+        await message.answer("Привет! Я ИИ-бот!")
 
     @dp.message()
     async def ai_response(message: types.Message):
@@ -23,7 +23,7 @@ async def main():
                 "Content-Type": "application/json"
             }
             data = {
-                "model": "google/gemini-1.5-flash",
+                "model": "gryphe/mythomax-l2-13b",
                 "messages": [{"role": "user", "content": message.text}],
                 "stream": False
             }
