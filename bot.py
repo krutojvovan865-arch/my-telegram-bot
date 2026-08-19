@@ -1,42 +1,157 @@
 import asyncio
+import os
 import requests
+
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 
-TOKEN = "8503266097:AAHYLwclZLsu8pudOw_gKQDmVyYOX_5ApPo"
-OPENROUTER_API_KEY = "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"
+
+# ==============================
+# НАСТРОЙКИ
+# ==============================
+
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+
+
+# Проверяем, что ключи добавлены в Render
+if not TOKEN:
+    raise ValueError("Не найдена переменная TELEGRAM_BOT_TOKEN")
+
+if not OPENROUTER_API_KEY:
+    raise ValueError("Не найдена переменная OPENROUTER_API_KEY")
+
+
+# ==============================
+# ЗАПУСК БОТА
+# ==============================
 
 async def main():
+
     bot = Bot(token=TOKEN)
     dp = Dispatcher()
 
+
+    # ==============================
+    # КОМАНДА /START
+    # ==============================
+
     @dp.message(Command("start"))
     async def start_command(message: types.Message):
-        await message.answer("Привет! Я ИИ-бот на OpenRouter!")
+
+        await message.answer(
+            "Привет! 👋\n\n"
+            "Я ИИ-бот. Напиши мне любой вопрос, "
+            "и я постараюсь на него ответить 🤖"
+        )
+
+
+    # ==============================
+    # ОБРАБОТКА СООБЩЕНИЙ
+    # ==============================
 
     @dp.message()
     async def ai_response(message: types.Message):
+
         try:
+
+            # Если пользователь отправил не текст
+            if not message.text:
+                await message.answer(
+                    "Пожалуйста, отправь мне текстовое сообщение."
+                )
+                return
+
+
+            # URL OpenRouter
             url = "https://openrouter.ai/api/v1/chat/completions"
+
+
+            # Заголовки
             headers = {
                 "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
             }
+
+
+            # Запрос к ИИ
             data = {
-                "model": "google/gemini-2.0-flash-exp:free",
-                "messages": [{"role": "user", "content": message.text}],
+                "model": "openrouter/free",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": message.text
+                    }
+                ],
                 "stream": False
             }
-            response = requests.post(url, headers=headers, json=data, timeout=15)
+
+
+            # Отправляем запрос
+            response = requests.post(
+                url,
+                headers=headers,
+                json=data,
+                timeout=60
+            )
+
+
+            # Если OpenRouter вернул ошибку
             if response.status_code != 200:
-                await message.answer(f"❌ Ошибка OpenRouter: {response.status_code}")
+
+                print("OpenRouter error:")
+                print(response.text)
+
+                await message.answer(
+                    f"❌ Ошибка OpenRouter: {response.status_code}\n\n"
+                    f"{response.text[:500]}"
+                )
+
                 return
-            answer = response.json()['choices'][0]['message']['content']
+
+
+            # Получаем JSON
+            result = response.json()
+
+
+            # Получаем ответ ИИ
+            answer = result["choices"][0]["message"]["content"]
+
+
+            # Отправляем ответ пользователю
             await message.answer(answer)
+
+
+        except requests.exceptions.Timeout:
+
+            await message.answer(
+                "⏳ OpenRouter слишком долго отвечает. "
+                "Попробуй ещё раз."
+            )
+
+
         except Exception as e:
-            await message.answer(f"🔥 Ошибка ИИ: {str(e)}")
+
+            print("Ошибка:")
+            print(str(e))
+
+            await message.answer(
+                f"🔥 Ошибка ИИ:\n{str(e)}"
+            )
+
+
+    # ==============================
+    # ЗАПУСК POLLING
+    # ==============================
+
+    print("🤖 Бот запущен!")
 
     await dp.start_polling(bot)
+
+
+# ==============================
+# MAIN
+# ==============================
 
 if __name__ == "__main__":
     asyncio.run(main())
