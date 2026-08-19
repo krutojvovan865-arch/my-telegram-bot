@@ -23,7 +23,7 @@ async def main():
                 "Content-Type": "application/json"
             }
             data = {
-                "model": "microsoft/phi-3-mini-128k-instruct",
+                "model": "google/gemini-2.0-flash-exp:free",
                 "messages": [{"role": "user", "content": message.text}],
                 "stream": False
             }
