@@ -12,7 +12,7 @@ async def main():
 
     @dp.message(Command("start"))
     async def start_command(message: types.Message):
-        await message.answer("Привет! Я ИИ-бот!")
+        await message.answer("Привет! Я ИИ-бот на OpenRouter!")
 
     @dp.message()
     async def ai_response(message: types.Message):
@@ -23,7 +23,7 @@ async def main():
                 "Content-Type": "application/json"
             }
             data = {
-                "model": "gryphe/mythomax-l2-13b",
+                "model": "cognitivecomputations/dolphin-mixtral-8x7b",
                 "messages": [{"role": "user", "content": message.text}],
                 "stream": False
             }
